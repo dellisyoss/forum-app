@@ -171,6 +171,8 @@ button { font: inherit; }
   max-width: min(86%, 590px);
 }
 .message-own { align-self: flex-end; }
+.message:focus { outline: none; }
+.message:focus .message-bubble { outline: 3px solid #5c3aab; outline-offset: 3px; }
 .message-body { display: grid; justify-items: start; gap: 5px; min-width: 0; }
 .message-own .message-body { justify-items: end; }
 .message .avatar {
@@ -204,15 +206,28 @@ button { font: inherit; }
 .message-own .message-bubble { border-radius: 15px 4px 15px 15px; background: #d1efdc; }
 .message-text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
 .message-quote {
+  display: grid;
+  gap: 2px;
+  width: 100%;
   margin-bottom: 6px;
-  padding: 4px 8px;
+  padding: 5px 8px;
+  border: 0;
   border-left: 2px solid #64528d;
   border-radius: 0 6px 6px 0;
   background: #ece4ff;
   color: #443269;
+  text-align: left;
   font-size: 0.76rem;
-  font-weight: 700;
+  line-height: 1.35;
   overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.message-quote:hover { background: var(--lilac); }
+.message-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 .message-actions { display: flex; align-items: center; gap: 4px; }
 .message-reply, .icon-btn {

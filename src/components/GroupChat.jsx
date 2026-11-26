@@ -13,11 +13,17 @@ function timelineFor(posts) {
   }).sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function Message({ entry, user, disabled, onReply, onDelete }) {
+const postElementId = (id) => `chat-post-${id}`;
+
+function Message({ entry, user, disabled, onReply, onDelete, onJumpToPost }) {
   const { item, post, isReply, tone } = entry;
   const own = !!user && item.userId != null && String(item.userId) === String(user.id);
   return (
-    <li className={`message tone-${tone}${own ? ' message-own' : ''}`}>
+    <li
+      className={`message tone-${tone}${own ? ' message-own' : ''}`}
+      id={isReply ? undefined : postElementId(post.id)}
+      tabIndex={isReply ? undefined : -1}
+    >
       {!own && (
         <span className="avatar" aria-hidden="true">{item.username.charAt(0).toUpperCase()}</span>
       )}
@@ -27,7 +33,12 @@ function Message({ entry, user, disabled, onReply, onDelete }) {
           {item.date && <span>{item.date}</span>}
         </div>
         <div className="message-bubble">
-          {isReply && <p className="message-quote">Reply to {post.username}</p>}
+          {isReply && (
+            <button className="message-quote" type="button" onClick={() => onJumpToPost(post.id)}>
+              <strong>Reply to {post.username}</strong>
+              <span className="message-preview">{post.text}</span>
+            </button>
+          )}
           <p className="message-text">{item.text}</p>
         </div>
         {user && (
@@ -71,6 +82,20 @@ export default function GroupChat({
   function startReply(id) {
     setReplyToId(id);
     input.current.focus();
+  }
+
+  function jumpToPost(id) {
+    const container = timeline.current;
+    const target = document.getElementById(postElementId(id));
+    if (!container?.contains(target)) return;
+
+    const viewport = container.getBoundingClientRect();
+    const message = target.getBoundingClientRect();
+    target.focus({ preventScroll: true });
+    container.scrollTo({
+      top: container.scrollTop + message.top - viewport.top - Math.max(10, (viewport.height - message.height) / 2),
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
   }
 
   function changePage(nextPage) {
@@ -136,6 +161,7 @@ export default function GroupChat({
                 disabled={disabled}
                 onReply={startReply}
                 onDelete={remove}
+                onJumpToPost={jumpToPost}
               />
             ))}
           </ol>
